@@ -1,10 +1,11 @@
 from flask import Flask, request, jsonify
 import geoip2.database
+import os
 
 app = Flask(__name__)
 
 # Replace 'path/to/GeoLite2-City.mmdb' with the actual path to your GeoIP2 database
-reader = geoip2.database.Reader('Home/Downloads/GeoLite2-City_20240628/GeoLite2-City.mmdb')
+reader = geoip2.database.Reader(os.getenv('GEOLITE2_DB_PATH'))
 
 @app.route('/api/hello', methods=['GET'])
 def hello():

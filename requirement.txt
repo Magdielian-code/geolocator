@@ -1,1 +1,3 @@
 Flask==>=2.2.0 geoip2
+Werkzeug
+Jinja2

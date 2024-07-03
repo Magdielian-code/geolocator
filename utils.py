@@ -1,51 +1,59 @@
-# import requests
+import requests
 
-# def get_location(ip_address, reader):
-#     """Retrieves location data for a given IP address using GeoIP2.
+def get_location(ip_address):
+  """Retrieves location data for a given IP address using ipapi.
 
-#     Args:
-#         ip_address: The IP address for which to get location data.
-#         reader: A GeoIP2 database reader object.
+  Args:
+      ip_address: The IP address for which to get location data.
 
-#     Returns:
-#         A dictionary containing the city name or "Unknown" if not found.
-#     """
-#     try:
-#         response = reader.city(ip_address)
-#         city = response.city.names['en']
-#     except AddressNotFoundError:
-#         city = "Unknown"
-#     return {'city': city}
+  Returns:
+      A dictionary containing the city name or "Unknown" if not found.
+  """
+  url = f"https://ipapi.co/{ip_address}/json/"
+  try:
+    response = requests.get(url)
+    response.raise_for_status()  # Raise an exception for non-200 status codes
+    data = response.json()
+    city = data.get("city", "Unknown") 
+  except requests.exceptions.RequestException as e:
+    print(f"Error fetching location: {e}")
+    city = "Unknown"
+  return {"city": city}
 
 
-# def get_temperature(city, api_key):
-#   """Retrieves temperature data for a given city using ipapi API.
+def get_temperature(ip_address):
+  """Retrieves temperature data for a given city (replace with actual weather API call if ipapi doesn't provide it).
 
-#   Args:
-#       city: The city name for which to get temperature data.
-#       api_key: Your API key for the ipapi service.
+  Args:
+      city: The city name for which to get temperature data.
+      api_key: Your API key for the weather service (if applicable).
 
-#   Returns:
-#       A dictionary containing the temperature in Celsius or None if unsuccessful.
-#   """
+  Returns:
+      A dictionary containing the temperature or None if unsuccessful.
+  """
 
-#   # Replace with the ipapi API endpoint URL for weather data (if available)
-#   url = f"https://api.ipapi.com/addr/{city}?apikey={api_key}"
+  WEATHER_API_KEY = '9d08841fb334f501656cf35139431582'
+  url = f"https://ipapi.co/{ip_address}/json/"
 
-#   try:
-#     response = requests.get(url)
-#     response.raise_for_status()  # Raise an exception for non-200 status codes
-#     data = response.json()
+  try:
+    response = requests.get(url)
+    response.raise_for_status()  # Raise an exception for non-200 status codes
+    data = response.json()
+
+
+    # Get longitude and latitude
+    latitude = data.get("latitude")
+    longitude = data.get("longitude")
     
-#     # Check if temperature data is available in the ipapi response
-#     if 'temp' in data:
-#         temperature_celsius = data["temp"]
-#     else:
-#         # Handle the case where temperature data is not available from ipapi
-#         print(f"Temperature data not available from ipapi for {city}")
-#         return None  # Or return a default value
+    weather_url = f'https://api.openweathermap.org/data/2.5/weather?lat={latitude}&lon={longitude}&appid={WEATHER_API_KEY}'
+     
+    temperature = requests.get(weather_url)
+    temperature = temperature.json()
+    temperature = temperature['main']['temp']
 
-#     return {"temperature": temperature_celsius}
-#   except requests.exceptions.RequestException as e:
-#     print(f"Error retrieving temperature: {e}")
-#     return None
+
+    return temperature
+  
+  except requests.exceptions.RequestException as e:
+    print(f"Error retrieving temperature: {e}")
+    return None

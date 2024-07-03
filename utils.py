@@ -57,3 +57,5 @@ def get_temperature(ip_address):
   except requests.exceptions.RequestException as e:
     print(f"Error retrieving temperature: {e}")
     return None
+  
+#   dfj

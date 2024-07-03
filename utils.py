@@ -58,4 +58,4 @@ def get_temperature(ip_address):
     print(f"Error retrieving temperature: {e}")
     return None
   
-#   dfj
+

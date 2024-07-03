@@ -1,4 +1,3 @@
-from geoip2.errors import AddressNotFoundError
 import requests
 
 def get_location(ip_address, reader):
@@ -18,30 +17,35 @@ def get_location(ip_address, reader):
         city = "Unknown"
     return {'city': city}
 
-import requests
 
 def get_temperature(city, api_key):
-  """Retrieves temperature data for a given city using an API.
+  """Retrieves temperature data for a given city using ipapi API.
 
   Args:
       city: The city name for which to get temperature data.
-      api_key: Your API key for the weather service.
+      api_key: Your API key for the ipapi service.
 
   Returns:
       A dictionary containing the temperature in Celsius or None if unsuccessful.
   """
 
-  # Replace with your desired weather API endpoint URL
-  url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
+  # Replace with the ipapi API endpoint URL for weather data (if available)
+  url = f"https://api.ipapi.com/addr/{city}?apikey={api_key}"
 
   try:
     response = requests.get(url)
     response.raise_for_status()  # Raise an exception for non-200 status codes
     data = response.json()
-    temperature_kelvin = data["main"]["temp"]
-    # Convert Kelvin to Celsius (you can adjust the conversion if needed)
-    temperature_celsius = round(temperature_kelvin - 273.15, 2)
+    
+    # Check if temperature data is available in the ipapi response
+    if 'temp' in data:
+        temperature_celsius = data["temp"]
+    else:
+        # Handle the case where temperature data is not available from ipapi
+        print(f"Temperature data not available from ipapi for {city}")
+        return None  # Or return a default value
+
     return {"temperature": temperature_celsius}
   except requests.exceptions.RequestException as e:
     print(f"Error retrieving temperature: {e}")
-    return "11 degress Celcius"
+    return None
